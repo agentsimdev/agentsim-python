@@ -43,4 +43,3 @@ packages = ["agentsim"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
-# sync-test: 2026-03-28T08:39:31Z
