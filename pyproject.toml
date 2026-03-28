@@ -1,6 +1,6 @@
 [project]
 name = "agentsim-sdk"
-version = "0.9.0"
+version = "0.10.0"
 description = "AgentSIM Python SDK — autonomous OTP relay for AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,9 +22,9 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://agentsim.dev"
-Repository = "https://github.com/agentsimdev/agentsim-python"
-Documentation = "https://docs.agentsim.dev"
-Changelog = "https://github.com/agentsimdev/agentsim-python/blob/main/CHANGELOG.md"
+Repository = "https://github.com/agentsim/agentsim"
+Documentation = "https://agentsim.dev/docs"
+Changelog = "https://github.com/agentsim/agentsim/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -42,3 +42,5 @@ packages = ["agentsim"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+# sync-test: 2026-03-28T08:39:31Z
