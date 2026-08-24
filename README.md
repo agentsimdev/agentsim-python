@@ -1,6 +1,6 @@
 # agentsim-sdk
 
-Autonomous OTP relay for AI agents. AgentSIM provisions real carrier-routed phone numbers, receives inbound SMS, and delivers parsed OTP codes back to your agent — no human relay needed.
+AgentSIM is the control plane for agents hitting the real world's auth walls. SMS OTP is the first challenge type. This SDK provisions a US test number, waits for the parsed code, and releases the session. Local mock mode accepts inbound messages through the REST API.
 
 ## Install
 
@@ -20,7 +20,7 @@ pip install agentsim-sdk
 import agentsim
 
 async with agentsim.provision(agent_id="checkout-bot", country="US") as num:
-    await enter_phone_number(num.number)          # "+14155552671"
+    await enter_phone_number(num.number)          # "+12025550142"
     otp = await num.wait_for_otp(timeout=60)
     await enter_otp(otp.otp_code)                 # "391847"
 # number auto-released
@@ -43,7 +43,7 @@ Get your API key at [console.agentsim.dev](https://console.agentsim.dev).
 Returns an async context manager. Provisions a number on enter, auto-releases on exit (even if the body raises).
 
 ```python
-async with agentsim.provision(agent_id="stripe-setup", country="US") as num:
+async with agentsim.provision(agent_id="checkout-bot", country="US") as num:
     print(num.number)   # E.164 phone number
     print(num.session_id)
     otp = await num.wait_for_otp(timeout=30)
