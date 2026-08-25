@@ -69,6 +69,24 @@ class AgentSimClient:
         provisioned = ProvisionedNumber.model_validate(data)
         return NumberSession(provisioned, self)
 
+    async def open_challenge(
+        self,
+        *,
+        agent_id: str,
+        country: Optional[str] = None,
+        service_url: Optional[str] = None,
+        ttl_seconds: int = 3600,
+        webhook_url: Optional[str] = None,
+    ) -> "NumberSession":
+        """Open an SMS challenge session. Alias of ``provision``. Same objects."""
+        return await self.provision(
+            agent_id=agent_id,
+            country=country,
+            service_url=service_url,
+            ttl_seconds=ttl_seconds,
+            webhook_url=webhook_url,
+        )
+
     async def release(self, session_id: str) -> None:
         await self._request("DELETE", f"/sessions/{session_id}")
 
@@ -82,7 +100,7 @@ class AgentSimClient:
         on_reregistration_needed: Optional[Callable[[str, str], Awaitable[None]]] = None,
         _current_country: str = "US",
     ) -> OtpResult:
-        """Wait for an OTP to arrive on the provisioned number.
+        """Wait for the SMS challenge verdict.
 
         Raises ``OtpTimeoutError`` if no OTP is received within *timeout* seconds.
         Sessions that raise ``OtpTimeoutError`` are NOT billed.
@@ -134,6 +152,26 @@ class AgentSimClient:
                 if on_reregistration_needed is not None:
                     await on_reregistration_needed(new_number, next_country)
 
+    async def wait_for_verdict(
+        self,
+        session_id: str,
+        *,
+        timeout: int = 60,
+        auto_reroute: bool = False,
+        max_reroutes: int = 2,
+        on_reregistration_needed: Optional[Callable[[str, str], Awaitable[None]]] = None,
+        _current_country: str = "US",
+    ) -> OtpResult:
+        """Wait for the SMS challenge verdict. Alias of ``wait_for_otp``. Timeout is seconds."""
+        return await self.wait_for_otp(
+            session_id,
+            timeout=timeout,
+            auto_reroute=auto_reroute,
+            max_reroutes=max_reroutes,
+            on_reregistration_needed=on_reregistration_needed,
+            _current_country=_current_country,
+        )
+
     async def get_messages(self, session_id: str) -> list[SmsMessage]:
         data = await self._request("GET", f"/sessions/{session_id}/messages")
         return [SmsMessage.model_validate(m) for m in data.get("messages", [])]
@@ -164,6 +202,24 @@ class NumberSession:
     def expires_at(self) -> Any:
         return self._provisioned.expires_at
 
+    async def wait_for_verdict(
+        self,
+        *,
+        timeout: int = 60,
+        auto_reroute: bool = False,
+        max_reroutes: int = 2,
+        on_reregistration_needed: Optional[Callable[[str, str], Awaitable[None]]] = None,
+    ) -> OtpResult:
+        """Wait for the SMS challenge verdict. Timeout is seconds."""
+        return await self._client.wait_for_verdict(
+            self.session_id,
+            timeout=timeout,
+            auto_reroute=auto_reroute,
+            max_reroutes=max_reroutes,
+            on_reregistration_needed=on_reregistration_needed,
+            _current_country=self._provisioned.country,
+        )
+
     async def wait_for_otp(
         self,
         *,
@@ -172,13 +228,12 @@ class NumberSession:
         max_reroutes: int = 2,
         on_reregistration_needed: Optional[Callable[[str, str], Awaitable[None]]] = None,
     ) -> OtpResult:
-        return await self._client.wait_for_otp(
-            self.session_id,
+        """Alias of ``wait_for_verdict``. Same objects, same timeout in seconds."""
+        return await self.wait_for_verdict(
             timeout=timeout,
             auto_reroute=auto_reroute,
             max_reroutes=max_reroutes,
             on_reregistration_needed=on_reregistration_needed,
-            _current_country=self._provisioned.country,
         )
 
     async def messages(self) -> list[SmsMessage]:
