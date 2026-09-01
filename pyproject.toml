@@ -1,6 +1,6 @@
 [project]
 name = "agentsim-sdk"
-version = "0.24.2"
+version = "0.25.0"
 description = "AgentSIM Python SDK — autonomous OTP relay for AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
