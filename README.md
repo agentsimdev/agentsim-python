@@ -19,7 +19,7 @@ pip install agentsim-sdk
 ```python
 import agentsim
 
-async with agentsim.open_challenge(agent_id="checkout-bot", country="US") as num:
+async with agentsim.open_challenge(agent_id="checkout-bot", service_url="https://staging.example.com", country="US") as num:
     await enter_phone_number(num.number)
     otp = await num.wait_for_verdict(timeout=60)
     await enter_otp(otp.otp_code)
@@ -37,12 +37,12 @@ Get your API key at [console.agentsim.dev](https://console.agentsim.dev).
 
 ## API
 
-### `agentsim.open_challenge(*, agent_id, country="US", service_url=None, ttl_seconds=3600, webhook_url=None)`
+### `agentsim.open_challenge(*, agent_id, service_url, country="US", ttl_seconds=3600, webhook_url=None)`
 
 Returns an async context manager. Opens an SMS challenge on enter, auto-releases on exit. `provision` is an alias.
 
 ```python
-async with agentsim.open_challenge(agent_id="checkout-bot", country="US") as num:
+async with agentsim.open_challenge(agent_id="checkout-bot", service_url="https://staging.example.com", country="US") as num:
     print(num.number)
     print(num.session_id)
     otp = await num.wait_for_verdict(timeout=60)

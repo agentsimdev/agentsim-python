@@ -49,8 +49,8 @@ class AgentSimClient:
         self,
         *,
         agent_id: str,
+        service_url: str,
         country: Optional[str] = None,
-        service_url: Optional[str] = None,
         ttl_seconds: int = 3600,
         webhook_url: Optional[str] = None,
     ) -> "NumberSession":
@@ -60,8 +60,7 @@ class AgentSimClient:
         }
         if country is not None:
             body["country"] = country
-        if service_url is not None:
-            body["service_url"] = service_url
+        body["service_url"] = service_url
         if webhook_url:
             body["webhook_url"] = webhook_url
 
@@ -73,8 +72,8 @@ class AgentSimClient:
         self,
         *,
         agent_id: str,
+        service_url: str,
         country: Optional[str] = None,
-        service_url: Optional[str] = None,
         ttl_seconds: int = 3600,
         webhook_url: Optional[str] = None,
     ) -> "NumberSession":
@@ -256,8 +255,8 @@ async def _provision_ctx(
     client: AgentSimClient,
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
 ) -> AsyncIterator[NumberSession]:
@@ -278,8 +277,8 @@ def provision_sync(
     api_key: str,
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
     base_url: str = DEFAULT_BASE_URL,

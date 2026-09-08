@@ -75,8 +75,8 @@ def configure(*, api_key: str, base_url: Optional[str] = None) -> None:
 def open_challenge(
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -93,7 +93,7 @@ def open_challenge(
 
     Usage::
 
-        async with agentsim.open_challenge(agent_id="checkout-bot") as num:
+        async with agentsim.open_challenge(agent_id="checkout-bot", service_url="https://staging.example.com") as num:
             otp = await num.wait_for_verdict(timeout=60)
     """
     resolved_key = api_key or _default_api_key
@@ -114,8 +114,8 @@ def open_challenge(
 def provision(
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -125,7 +125,7 @@ def provision(
 
     Usage::
 
-        async with agentsim.provision(agent_id="checkout-bot") as num:
+        async with agentsim.provision(agent_id="checkout-bot", service_url="https://staging.example.com") as num:
             otp = await num.wait_for_otp(timeout=60)
     """
     return open_challenge(
@@ -142,8 +142,8 @@ def provision(
 def open_challenge_sync(
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -159,7 +159,7 @@ def open_challenge_sync(
 
     Usage::
 
-        with agentsim.open_challenge_sync(agent_id="checkout-bot") as num:
+        with agentsim.open_challenge_sync(agent_id="checkout-bot", service_url="https://staging.example.com") as num:
             print(num.number)
     """
     resolved_key = api_key or _default_api_key
@@ -183,8 +183,8 @@ def open_challenge_sync(
 def provision_sync(
     *,
     agent_id: str,
+    service_url: str,
     country: Optional[str] = None,
-    service_url: Optional[str] = None,
     ttl_seconds: int = 3600,
     webhook_url: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -194,7 +194,7 @@ def provision_sync(
 
     Usage::
 
-        with agentsim.provision_sync(agent_id="checkout-bot") as num:
+        with agentsim.provision_sync(agent_id="checkout-bot", service_url="https://staging.example.com") as num:
             print(num.number)
     """
     return open_challenge_sync(

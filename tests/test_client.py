@@ -11,6 +11,7 @@ from agentsim.client import AgentSimClient
 from agentsim.exceptions import OtpTimeoutError, PoolExhaustedError
 
 BASE = "https://api.agentsim.dev/v1"
+SERVICE_URL = "https://staging.example.com"
 
 PROVISION_RESPONSE = {
     "session_id": "sess-abc123",
@@ -28,7 +29,7 @@ async def test_provision_returns_session() -> None:
         return_value=httpx.Response(201, json=PROVISION_RESPONSE)
     )
     client = AgentSimClient("test-key")
-    session = await client.provision(agent_id="test-bot", country="US")
+    session = await client.provision(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     assert session.number == "+15551234567"
     assert session.session_id == "sess-abc123"
     await client.aclose()
@@ -40,12 +41,12 @@ async def test_open_challenge_wraps_provision() -> None:
         return_value=httpx.Response(201, json=PROVISION_RESPONSE)
     )
     client = AgentSimClient("test-key")
-    session = await client.open_challenge(agent_id="test-bot", country="US", ttl_seconds=300)
+    session = await client.open_challenge(agent_id="test-bot", service_url=SERVICE_URL, country="US", ttl_seconds=300)
     assert session.number == "+15551234567"
     assert session.session_id == "sess-abc123"
     assert route.called
     sent = json.loads(route.calls.last.request.content)
-    assert sent == {"agent_id": "test-bot", "ttl_seconds": 300, "country": "US"}
+    assert sent == {"agent_id": "test-bot", "service_url": SERVICE_URL, "ttl_seconds": 300, "country": "US"}
     await client.aclose()
 
 
@@ -59,6 +60,7 @@ async def test_module_open_challenge_is_alias_of_provision() -> None:
     )
     async with open_challenge(
         agent_id="test-bot",
+        service_url=SERVICE_URL,
         country="US",
         api_key="test-key",
         base_url=BASE,
@@ -66,6 +68,7 @@ async def test_module_open_challenge_is_alias_of_provision() -> None:
         assert session.number == "+15551234567"
     async with provision(
         agent_id="test-bot",
+        service_url=SERVICE_URL,
         country="US",
         api_key="test-key",
         base_url=BASE,
@@ -83,7 +86,7 @@ async def test_provision_pool_exhausted() -> None:
     )
     client = AgentSimClient("test-key")
     with pytest.raises(PoolExhaustedError):
-        await client.provision(agent_id="test-bot", country="US")
+        await client.provision(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     await client.aclose()
 
 
@@ -104,7 +107,7 @@ async def test_wait_for_otp_returns_code() -> None:
         )
     )
     client = AgentSimClient("test-key")
-    session = await client.provision(agent_id="test-bot", country="US")
+    session = await client.provision(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     result = await client.wait_for_otp(session.session_id, timeout=30)
     assert result.otp_code == "123456"
     session_result = await session.wait_for_otp(timeout=30)
@@ -129,7 +132,7 @@ async def test_wait_for_verdict_wraps_wait_for_otp() -> None:
         )
     )
     client = AgentSimClient("test-key")
-    session = await client.open_challenge(agent_id="test-bot", country="US")
+    session = await client.open_challenge(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     result = await session.wait_for_verdict(timeout=30)
     assert result.otp_code == "123456"
     assert wait_route.called
@@ -152,7 +155,7 @@ async def test_wait_for_otp_timeout() -> None:
         )
     )
     client = AgentSimClient("test-key")
-    session = await client.provision(agent_id="test-bot", country="US")
+    session = await client.provision(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     with pytest.raises(OtpTimeoutError):
         await client.wait_for_otp(session.session_id, timeout=30)
     await client.aclose()
@@ -167,6 +170,6 @@ async def test_release_session() -> None:
         return_value=httpx.Response(204)
     )
     client = AgentSimClient("test-key")
-    session = await client.provision(agent_id="test-bot", country="US")
+    session = await client.provision(agent_id="test-bot", service_url=SERVICE_URL, country="US")
     await session.release()  # should complete without exception
     await client.aclose()
