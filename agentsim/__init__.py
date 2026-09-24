@@ -84,9 +84,8 @@ def open_challenge(
 ) -> NumberSession:
     """Async context manager — open an SMS challenge, auto-release on exit.
 
-    Starts a billable challenge session. $0.99 per session on the Builder plan.
-    Free on Hobby (10 sessions/month limit). Sessions that raise
-    ``OtpTimeoutError`` are NOT billed.
+    Live access depends on account terms. A successful assignment can use
+    allowance even if the wait times out. See https://docs.agentsim.dev/availability.
 
     ``provision`` is kept as an alias of ``open_challenge``. Same objects,
     same timeouts in seconds.
@@ -151,8 +150,8 @@ def open_challenge_sync(
 ) -> _SyncNumberSessionCtx:
     """Synchronous context manager — open an SMS challenge, auto-release on exit.
 
-    Starts a billable challenge session. $0.99 per session on the Builder plan.
-    Free on Hobby (10 sessions/month limit). ``NumberSession.wait_for_verdict``
+    Live access depends on account terms; successful assignments can use allowance.
+    ``NumberSession.wait_for_verdict``
     is async; there is no ``wait_for_verdict_sync`` in the shipped SDK.
 
     ``provision_sync`` is kept as an alias of ``open_challenge_sync``.

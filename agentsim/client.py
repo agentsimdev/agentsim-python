@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from contextlib import asynccontextmanager, contextmanager
-from typing import Any, AsyncIterator, Awaitable, Callable, Iterator, Optional
+from typing import Any, Awaitable, Callable, Optional
 
 import httpx
 
@@ -102,7 +101,7 @@ class AgentSimClient:
         """Wait for the SMS challenge verdict.
 
         Raises ``OtpTimeoutError`` if no OTP is received within *timeout* seconds.
-        Sessions that raise ``OtpTimeoutError`` are NOT billed.
+        A timeout does not undo a successful assignment or its allowance use.
         """
         if not auto_reroute:
             data = await self._request(
@@ -248,29 +247,6 @@ class NumberSession:
 
     async def __aexit__(self, *_: Any) -> None:
         await self.release()
-
-
-@asynccontextmanager
-async def _provision_ctx(
-    client: AgentSimClient,
-    *,
-    agent_id: str,
-    service_url: str,
-    country: Optional[str] = None,
-    ttl_seconds: int = 3600,
-    webhook_url: Optional[str] = None,
-) -> AsyncIterator[NumberSession]:
-    session = await client.provision(
-        agent_id=agent_id,
-        country=country,
-        service_url=service_url,
-        ttl_seconds=ttl_seconds,
-        webhook_url=webhook_url,
-    )
-    try:
-        yield session
-    finally:
-        await session.release()
 
 
 def provision_sync(
